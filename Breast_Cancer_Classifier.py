@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[18]:
-
-
 import pandas as pd
 import numpy as np
 from sklearn.svm import SVC
@@ -16,40 +10,21 @@ import statsmodels.formula.api as sm
 import warnings
 warnings.filterwarnings('ignore')
 
-get_ipython().run_line_magic('matplotlib', 'inline')
-
-
-# In[19]:
-
+%matplotlib inline
 
 df = pd.read_csv('wdbc.data')
 df.drop('ID',axis = 1,inplace = True)
 
 
-# In[20]:
-
-
 df.head()
-
-
-# In[21]:
-
 
 le = LabelEncoder()
 le.fit(df['Diagonsis'])
 df['Diagonsis'] = le.transform(df['Diagonsis'])
 df.head()
 
-
-# In[22]:
-
-
 X = df.iloc[:,1:]
 y = df.iloc[:,0]
-
-
-# In[23]:
-
 
 l = ["Radius_mean","Texture_mean","Perimeter_mean","Area_mean","Area_se","Worst_Radius","Worst_Texture","Worst_Perimeter",'Worst_Area']
 
@@ -58,10 +33,6 @@ mms.fit(X[l])
 X[l] = mms.transform(X[l])
 
 X.head()
-
-
-# In[24]:
-
 
 l = ["Malignant","Benign"]
 m = y[y == 1].count()
@@ -75,25 +46,10 @@ plt.ylabel("Number of Cases")
 plt.title("Count of Malignant and Benign Cancers")
 plt.show()
 
-
-# In[25]:
-
-
 corr = X.corr()
 plt.figure(figsize=(20,20))
 ax = sns.heatmap(corr,annot = True)
 plt.show()
-
-
-# In[26]:
-
-
-# All the data related to Perimeter (Perimeter_mean,Perimeter_se and Worst_Perimeter) are highly correlated to
-# the respective values of area and radius.
-
-
-# In[27]:
-
 
 columns = np.full((corr.shape[0],), True, dtype=bool)
 
@@ -108,10 +64,6 @@ selected_columns = X.columns[columns]
 X = X[selected_columns]
 selected_columns = list(selected_columns.values)
 X.head()
-
-
-# In[28]:
-
 
 def p_threshold(X, y, sl, columns):
     numOfVars = len(columns)
@@ -130,10 +82,6 @@ def p_threshold(X, y, sl, columns):
 SL = 0.05
 X, selected_columns = p_threshold(X, y, SL, selected_columns)
 
-
-# In[29]:
-
-
 plt.figure(figsize = (20, 20))
 j = 0
 for i in X.columns:
@@ -147,32 +95,16 @@ plt.tight_layout()
 plt.subplots_adjust(top=0.95)
 plt.show()
 
-
-# In[30]:
-
-
 X_train,X_test,y_train,y_test = train_test_split(X,y,test_size = 0.25,random_state = 0)
-
-
-# In[31]:
-
 
 svc = SVC(C = 1.0,kernel='rbf')
 svc.fit(X_train,y_train)
 y_pred_svc = svc.predict(X_test)
 
-
-# In[32]:
-
-
 print("Accuracy of SVC:",round(accuracy_score(y_test,y_pred_svc)*100,2))
 print("Precision of SVC:",round(precision_score(y_test,y_pred_svc)*100,2))
 print("Recall of SVC:",round(recall_score(y_test,y_pred_svc)*100,2))
 print("F- score of SVC:",round(f1_score(y_test,y_pred_svc)*100,2))
-
-
-# In[33]:
-
 
 plt.figure()
 sns.heatmap(confusion_matrix(y_test,y_pred_svc),annot = True)
@@ -183,15 +115,23 @@ plt.xticks([0.5,1.5],["Benign","Malignant"])
 plt.yticks([0.5,1.5],["Benign","Malignant"])
 plt.show()
 
+# results without preprocessing
 
-# In[ ]:
+X_train,X_test,y_train,y_test = train_test_split(xx,yy,test_size = 0.25,random_state = 0)
+svc = SVC(C = 1.0,kernel='rbf')
+svc.fit(X_train,y_train)
+y_pred_svc = svc.predict(X_test)
 
+print("Accuracy of SVC:",round(accuracy_score(y_test,y_pred_svc)*100,2))
+print("Precision of SVC:",round(precision_score(y_test,y_pred_svc),2))
+print("Recall of SVC:",round(recall_score(y_test,y_pred_svc),2))
+print("F- score of SVC:",round(f1_score(y_test,y_pred_svc),2))
 
-
-
-
-# In[ ]:
-
-
-
-
+plt.figure()
+sns.heatmap(confusion_matrix(y_test,y_pred_svc),annot = True)
+plt.xlabel("Predicted Values")
+plt.ylabel("True Values")
+plt.title("Confusion Matrix of SVM Classifer")
+plt.xticks([0.5,1.5],["Benign","Malignant"])
+plt.yticks([0.5,1.5],["Benign","Malignant"])
+plt.show()
